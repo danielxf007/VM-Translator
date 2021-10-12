@@ -4,4 +4,6 @@ This translator takes *.vm files and creates an *.asm file with the assembly com
 
 ![Screenshot](menu.png)
 
-If you want to translate vm files, you need to give the path were the files are, then you give the name to the assembly file. 
+If you want to translate vm files, you need to give the path were the files are, then you give the name to the assembly file.
+
+Note: This version creates the asm file with the bootstrap code.
