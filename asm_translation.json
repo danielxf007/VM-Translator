@@ -1,0 +1,74 @@
+{
+    "push":{
+        "argument": ["@{index}", "D=A", "@ARG", "A=M+D", "D=M"],
+        "local":["@{index}", "D=A", "@LCL", "A=M+D", "D=M"],
+        "static":["@{file_name}.{index}", "D=M"],
+        "constant":["@{index}", "D=A"],
+        "this":["@{index}", "D=A", "@THIS", "A=M+D", "D=M"],
+        "that":["@{index}", "D=A", "@THAT", "A=M+D", "D=M"],
+        "pointer": {"0":["@THIS", "D=M"], "1":["@THAT", "D=M"]},
+        "temp":["@{index}", "D=A", "@R5", "A=D+A", "D=M"],
+        "add_to_sp":["@SP", "A=M", "M=D"],
+        "inc_sp":["@SP", "M=M+1"]
+    },
+    "pop":{
+        "argument": ["@{index}", "D=A", "@ARG", "D=D+M"],
+        "local":["@{index}", "D=A", "@LCL", "D=D+M"],
+        "static":["@SP", "AM=M-1", "D=M", "@{file_name}.{index}", "M=D"],
+        "this":["@{index}", "D=A", "@THIS", "D=D+M"],
+        "that":["@{index}", "D=A", "@THAT", "D=D+M"],
+        "pointer": {"0":["@SP", "AM=M-1", "D=M", "@THIS", "M=D"], "1":["@SP", "AM=M-1", "D=M", "@THAT", "M=D"]},
+        "temp":["@{index}", "D=A", "@R5", "D=D+A"],
+        "add_to_segment":["@SP", "A=M", "M=D", "A=A-1", "D=M", "A=A+1", "A=M", "M=D"],
+        "dec_sp":["@SP", "M=M-1"]
+    },
+    "add":["@SP", "AM=M-1", "D=M", "A=A-1", "M=D+M"],
+    "sub":["@SP", "AM=M-1", "D=M", "A=A-1", "M=M-D"],
+    "neg":["@SP", "A=M-1", "M=-M"],
+    "eq":["D=M", "@EQ_{index}", "D;JEQ", "D=0", "@END_EQ_{index}", "0;JMP", "(EQ_{index})", "D=-1",
+        "(END_EQ_{index})", "@SP", "A=M-1", "M=D"],
+    "gt":["D=M", "@GT_{index}", "D;JGT", "D=0", "@END_GT_{index}", "0;JMP", "(GT_{index})", "D=-1",
+        "(END_GT_{index})", "@SP", "A=M-1", "M=D"],
+    "lt":["D=M", "@LT_{index}", "D;JLT", "D=0", "@END_LT_{index}", "0;JMP", "(LT_{index})", "D=-1",
+        "(END_LT_{index})", "@SP", "A=M-1", "M=D"],
+    "and":["@SP", "AM=M-1", "D=M", "A=A-1", "M=D&M"],
+    "or":["@SP", "AM=M-1", "D=M", "A=A-1", "M=D|M"],
+    "not":["@SP", "A=M-1", "M=!M"],
+    "label":"({label})",
+    "goto":["@{label}", "0;JMP"],
+    "if-goto":["@SP", "AM=M-1", "D=M", "@COND_{index}", "D;JNE", "@END_COND_{index}", "0;JMP",
+        "(COND_{index})", "@{label}", "0;JMP", "(END_COND_{index})"],
+    "call":{
+        "save_ret_addr":["@RETURN_FROM_CALL_{n_call}", "D=A", "@SP", "A=M", "M=D"],
+        "save_segments":[
+            "@LCL", "D=M", "@SP", "AM=M+1", "M=D",
+            "@ARG", "D=M", "@SP", "AM=M+1", "M=D",
+            "@THIS", "D=M", "@SP", "AM=M+1", "M=D",
+            "@THAT", "D=M", "@SP", "AM=M+1", "M=D",
+            "@SP", "M=M+1"
+        ],
+        "set_arg":["@SP", "D=M", "@5", "D=D-A", "@{index}", "D=D-A", "@ARG", "M=D"],
+        "set_lcl":["@SP", "D=M", "@LCL", "M=D"],
+        "transfer_control":["@{label}", "0;JMP", "(RETURN_FROM_CALL_{n_call})"]
+    },
+    "function":{
+        "set_local":["({label})"],
+        "set_D_zero":["@0", "D=A"],
+        "add_to_sp":["@SP", "A=M", "M=D"],
+        "inc_sp":["@SP", "M=M+1"]
+    },
+    "return":{
+        "save_lcl":["@LCL", "D=M", "@13", "M=D"],
+        "save_ret_addr":["@13", "D=M", "@5", "D=D-A", "A=D", "D=M", "@14", "M=D"],
+        "ret_val":["@SP", "A=M-1", "D=M", "@ARG", "A=M", "M=D"],
+        "restore_sp":["@ARG", "D=M+1", "@SP", "M=D"],
+        "restore_segment_pointers":[
+            "@13", "AM=M-1", "D=M", "@THAT", "M=D",
+            "@13", "AM=M-1", "D=M", "@THIS", "M=D",
+            "@13", "AM=M-1", "D=M", "@ARG", "M=D",
+            "@13", "AM=M-1", "D=M", "@LCL", "M=D"
+        ],
+        "ret_from_call":["@14", "A=M", "0;JMP"]
+    },
+    "bootstrap":["// bootstrap", "@256", "D=A", "@SP", "M=D"]
+}
